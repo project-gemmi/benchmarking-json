@@ -113,7 +113,8 @@ Compilation options can be changed in `build/premake5.lua`.
 ## Conformance reports
 
 Nativejson-benchmark produces also a *conformance report* for each parser.
-The simplest parsers, such as gason, get a [poor score]().
+The simplest parsers, such as gason, get a
+[poor score](https://rawgit.com/miloyip/nativejson-benchmark/master/sample/conformance.html).
 But looking closely at it the failing conformance tests are not necessarily
 bad things.
 
@@ -137,14 +138,15 @@ numerical tests. Taocpp/json and RapidJSON-full-prec are 100% conformant.
 I ran the tests on Ubuntu 16.04 on a laptop with Intel Broadwell processor.
 By default, the benchmark is compiled with `-O3 -march=native`.
 I tested it also without `-march=native`, but the results were
-approximately the same. Both sets of results are in this repo.
+approximately the same. Both sets of results are in
+[this](https://rawgit.com/project-gemmi/benchmarking-json/master/result-native/performance_Corei7-5600U@2.60GHz_linux64_gcc5.4.html)
+[repo](https://rawgit.com/project-gemmi/benchmarking-json/master/result-generic/performance_Corei7-5600U@2.60GHz_linux64_gcc5.4.html).
 
 Here is what I got with GCC 7:
 
 ![GCC7 results](img/json-parse-gcc7.png)
 
-(Yes, it'd be better to show MB/s. If you want to check details,
-see the full reports in this repo)
+(Yes, it'd be better to show MB/s).
 
 Three of the benchmarks are in-situ: RapidJSON_InSitu, sajson, gason.
 Two are not in-situ and with full numeric precision:
