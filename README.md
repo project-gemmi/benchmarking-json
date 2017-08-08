@@ -141,7 +141,7 @@ approximately the same. Both sets of results are in this repo.
 
 Here is what I got with GCC 7:
 
-json-parse-gcc7.svg
+![GCC7 results](img/json-parse-gcc7.png)
 
 (Yes, it'd be better to show MB/s. If you want to check details,
 see the full reports in this repo)
@@ -156,7 +156,7 @@ rightfully called the fastest parser.
 
 Here are results I got with Clang 4:
 
-json-parse-clang4.svg
+![Clang 4 results](img/json-parse-clang4.png)
 
 [Chad's results][1] were showing very low performance of rapidjson/clang
 (the graph for Ubuntu 16.04 on Intel Broadwell). Here Clang is almost
@@ -164,7 +164,7 @@ as good as GCC.
 
 And if you wonder about memory usage:
 
-json-memory-gcc5.png
+![Memory usage](img/json-memory-gcc5.png)
 
 Note that benchmarks of the in-situ parsers first copy the original data,
 so if you already have a mutable buffer with the data
