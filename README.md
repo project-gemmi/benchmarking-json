@@ -32,10 +32,10 @@ So, which of the DOM-building parsers can be the fastest one as of August 2017?
   and more accurate in number parsing.
   But it is not clear to me what is the current status of gason2.
 
-I'll skip [Jsmn](https://github.com/zserge/jsmn) (by Serge Zaitsev)
-which is "world fastest JSON parser/tokenizer" (and indeed, it wins one of
-the RapidJSON's benchmarks called [Statistics][2]),
-but it doesn't create a DOM-like structure.
+I'll skip [Jsmn](https://github.com/zserge/jsmn) by Serge Zaitsev,
+"world fastest JSON parser/tokenizer" which indeed wins in one of
+the RapidJSON's benchmarks ([Statistics][2]),
+because it doesn't create a DOM-like structure.
 
 On the other hand I'll include
 [**taocpp/json**](https://github.com/taocpp/json) (by Daniel Frey and
@@ -69,7 +69,7 @@ And more than 0.5 GB of the disk space for cloning all the tested parsers.
 To change the data files used in the benchmark just drop your files
 into the `data/` directory and edit `data/data.txt`.
 
-I'm here to test parsing [mmJSON](https://pdbj.org/help/mmjson) files.
+I'm here to benchmark parsing of [mmJSON](https://pdbj.org/help/mmjson) files.
 As an example I'll use
 [4un4](http://www.rcsb.org/pdb/explore.do?structureId=4un4)
 converted from mmCIF to mmJSON with gemmi-convert.
@@ -146,9 +146,9 @@ json-parse-gcc7.svg
 (Yes, it'd be better to show MB/s. If you want to check details,
 see the full reports in this repo)
 
-Three of the benchmarks are in-situ (RapidJSON_InSitu, sajson, gason).
-Two are not in-situ and with full numeric precision
-(taocpp and RapidJSON_FullPrec).
+Three of the benchmarks are in-situ: RapidJSON_InSitu, sajson, gason.
+Two are not in-situ and with full numeric precision:
+taocpp and RapidJSON_FullPrec.
 
 The results are consistent with both gason and sajson benchmarks.
 Each of RapidJSON, sajson and gason wins at least one test and can be

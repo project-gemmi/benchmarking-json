@@ -1,0 +1,593 @@
+<html>
+<head>
+<link rel="stylesheet" href="../resource/combine/combine.css">
+<script src="../resource/combine/combine.js"></script>
+<!--
+<script src="http://code.jquery.com/jquery-1.8.2.js"></script>
+<script src="http://www.google.com/jsapi?autoload={'modules':[{'name':'visualization','version':'1','packages':['controls', 'charteditor']}]}"></script>
+<script src="http://jquery-csv.googlecode.com/git/src/jquery.csv.js"></script>
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+-->
+<script>
+$(function() {
+  google.load("visualization", "1", {packages:["corechart"]});
+
+  var csv = $('#textInput').val();
+  var dt = google.visualization.arrayToDataTable($.csv.toArrays(csv, {onParseValue: $.csv.hooks.castToScalar}));
+
+  function sortCaseInsensitive(dt, column) {
+    for (var row = 0; row < dt.getNumberOfRows(); row++) {
+      var s = dt.getValue(row, column);
+      dt.setValue(row, column, s.toUpperCase());
+      dt.setFormattedValue(row, column, s);
+    }
+    dt.sort(column);
+  }
+
+  function AddToOverall(dt) {
+    if (overallDt == null) {
+      overallDt = dt.clone();
+    }
+    else {
+      var col1 = [];
+      for (var i = 1; i < overallDt.getNumberOfColumns(); i++)
+        col1.push(i);
+      overallDt = google.visualization.data.join(overallDt, dt, 'full', [[0, 0]], col1, [1]);
+    }
+
+    var newCol = overallDt.getNumberOfColumns() - 1;
+    overallDt.setColumnLabel(newCol, type + ' ' + overallDt.getColumnLabel(newCol))
+    var formatter1 = new google.visualization.NumberFormat({ fractionDigits: 0 });
+    formatter1.format(overallDt, newCol);
+
+    for (var row = 0; row < overallDt.getNumberOfRows(); row++) {
+      if (overallDt.getValue(row, newCol) == null) {
+        overallDt.setValue(row, newCol, Number.POSITIVE_INFINITY);
+        overallDt.setFormattedValue(row, newCol, "");
+      }
+    }
+  }
+
+  function createSortEvent(type, dt, chart) {
+    return function(e) {
+      if (e.column == 0 || e.column == 1) {
+        var t = dt.clone();
+        drawBarChart(type, t, chart, [{column: e.column, desc: !e.ascending }]);
+      }
+    }
+  }
+
+  addSection("0. Overall");
+
+  var overallDiv = document.createElement("div");
+  overallDiv.className = "tablechart";
+  $("#main").append(overallDiv);
+
+  // Per type sections
+  var types = dt.getDistinctValues(0);
+  var overallDt;
+  for (var i in types) {
+    var type = types[i];
+    addSection(type);
+
+    var view = new google.visualization.DataView(dt);
+    view.setRows(view.getFilteredRows([{column: 0, value: type}]));
+
+    if (type.search("Code size") != -1) {
+      var sizedt = google.visualization.data.group(
+        view,
+        [1], 
+        [{"column": 7, "aggregation": google.visualization.data.sum, 'type': 'number' }]
+      );
+      AddToOverall(sizedt);
+      sortCaseInsensitive(sizedt, 0);
+      addSubsection(sizedt.getColumnLabel(1));
+      var sizeTable = drawTable(type, sizedt.clone(), false);
+      var sizeChart = drawBarChart(type, sizedt.clone());
+      google.visualization.events.addListener(sizeTable, 'sort', createSortEvent(type, sizedt, sizeChart));
+    }
+    else {
+      addSubsection("Time");
+
+      var timedt = google.visualization.data.group(
+        view,
+        [1], 
+        [{"column": 3, "aggregation": google.visualization.data.sum, 'type': 'number' }]
+      );
+
+      AddToOverall(timedt);
+      sortCaseInsensitive(timedt, 0);
+      var timeTable = drawTable(type, timedt.clone(), true);
+      var timeChart = drawBarChart(type, timedt.clone());
+      google.visualization.events.addListener(timeTable, 'sort', createSortEvent(type, timedt, timeChart));
+
+      // Per JSON
+      drawPivotBarChart(
+        type + " per JSON",
+        pivotTable(google.visualization.data.group(
+          view,
+          [2, 1],
+          [{"column": 3, "aggregation": google.visualization.data.sum, 'type': 'number' }]
+        )),
+        dt.getColumnLabel(3)
+      );
+
+      // Only show memory of Parse
+      if (type.search("Parse") != -1) {
+        for (var column = 4; column <= 6; column++) {
+          var memorydt = google.visualization.data.group(
+            view,
+            [1], 
+            [{"column": column, "aggregation": google.visualization.data.sum, 'type': 'number' }]
+          );
+          AddToOverall(memorydt);
+          sortCaseInsensitive(memorydt, 0);
+          addSubsection(memorydt.getColumnLabel(1));
+          var memoryTable = drawTable(type, memorydt.clone(), false);
+          var memoryChart = drawBarChart(type, memorydt.clone());
+
+          google.visualization.events.addListener(memoryTable, 'sort', createSortEvent(type, memorydt, memoryChart));
+        }
+      }
+    }
+  }
+
+  var overallTable = new google.visualization.Table(overallDiv);
+  sortCaseInsensitive(overallDt, 0);
+  overallTable.draw(overallDt);
+
+  $(".chart").each(function() {
+    var chart = $(this);
+    var d = $("#downloadDD").clone().css("display", "");
+    $('li a', d).each(function() {
+          $(this).click(function() {
+              var svg = chart[0].getElementsByTagName('svg')[0].parentNode.innerHTML;
+              svg=sanitize(svg);
+              $('#imageFilename').val($("#title").html() + "_" + chart.data("filename"));
+              $('#imageGetFormTYPE').val($(this).attr('dltype'));
+              $('#imageGetFormSVG').val(svg);
+              $('#imageGetForm').submit();
+          });
+      });   
+    $(this).after(d);
+  });
+
+  // Add configurations
+  var thisConfig = "performance_Corei7-5600U@2.60GHz_linux64_gcc5.4";
+  var configurations = ["conformance","performance_Corei7-5600U@2.60GHz_linux64_clang4.0","performance_Corei7-5600U@2.60GHz_linux64_gcc5.4","performance_Corei7-5600U@2.60GHz_linux64_gcc7.1"];
+
+  for (var i in configurations) {
+    var c = configurations[i];
+    $("#benchmark").append($("<li>", {class : (c == thisConfig ? "active" : "")}).append($("<a>", {href: c + ".html"}).append(c)));
+  }
+});
+
+function pivotTable(src) {
+  var dst = new google.visualization.DataTable();
+  
+  // Add columns
+  var key = src.getDistinctValues(1);
+  var keyColumnMap = {};
+  dst.addColumn(src.getColumnType(0), src.getColumnLabel(0));  
+  for (var k in key)
+    keyColumnMap[key[k]] = dst.addColumn(src.getColumnType(2), key[k]);
+
+  // Add rows
+  var pivot = src.getDistinctValues(0);
+  var pivotRowMap = {};  
+  for (var p in pivot)
+    dst.setValue(pivotRowMap[[pivot[p]]] = dst.addRow(), 0, pivot[p]);
+
+  // Fill cells
+  for (var row = 0; row < src.getNumberOfRows(); row++)
+    dst.setValue(
+      pivotRowMap[src.getValue(row, 0)],
+      keyColumnMap[src.getValue(row, 1)],
+      src.getValue(row, 2));
+
+  return dst;
+}
+
+function addSection(name) {
+  $("#main").append(
+    $("<a>", {"name": name}),
+    $("<h2>", {style: "padding-top: 70px; margin-top: -70px;"}).append(name)
+  );
+  $("#section").append($("<li>").append($("<a>", {href: "#" + name}).append(name)));
+}
+
+function addSubsection(name) {
+  $("#main").append(
+    $("<h3>", {style: "padding-top: 70px; margin-top: -70px;"}).append(name)
+  );
+}
+
+function drawTable(type, data, isSpeedup) {
+  if (isSpeedup)
+    data.addColumn('number', 'Speedup');
+  else
+    data.addColumn('number', 'Ratio');
+  //data.sort([{ column: 1, desc: true }]);
+  var formatter1 = new google.visualization.NumberFormat({ fractionDigits: 0 });
+  formatter1.format(data, 1);
+
+  var div = document.createElement("div");
+  div.className = "tablechart";
+  $("#main").append(div);
+    var table = new google.visualization.Table(div);
+    redrawTable(0);
+    table.setSelection([{ row: 0, column: null}]);
+
+  function redrawTable(selectedRow) {
+      var s = table.getSortInfo();
+      // Compute relative time using the first row as basis
+      var basis = data.getValue(selectedRow, 1);
+      for (var rowIndex = 0; rowIndex < data.getNumberOfRows(); rowIndex++)
+        data.setValue(rowIndex, 2, isSpeedup ? basis / data.getValue(rowIndex, 1) : data.getValue(rowIndex, 1) / basis);
+
+      var formatter = new google.visualization.NumberFormat({suffix: 'x'});
+      formatter.format(data, 2); // Apply formatter to second column
+
+      table.draw(data, s != null ? {sortColumn: s.column, sortAscending: s.ascending} : null);
+  }
+
+  google.visualization.events.addListener(table, 'select',
+  function() {
+      var selection = table.getSelection();
+      if (selection.length > 0) {
+          var item = selection[0];
+          if (item.row != null)
+              redrawTable(item.row);
+      }
+  });
+
+  return table;
+}
+
+function drawBarChart(type, data, chart, sortOptions) {
+  // Using same colors as in series
+  var colors = ["#3366cc","#dc3912","#ff9900","#109618","#990099","#0099c6","#dd4477","#66aa00","#b82e2e","#316395","#994499","#22aa99","#aaaa11","#6633cc","#e67300","#8b0707","#651067","#329262","#5574a6","#3b3eac","#b77322","#16d620","#b91383","#f4359e","#9c5935","#a9c413","#2a778d","#668d1c","#bea413","#0c5922","#743411","#3366cc","#dc3912","#ff9900","#109618","#990099","#0099c6","#dd4477","#66aa00","#b82e2e","#316395","#994499","#22aa99","#aaaa11","#6633cc","#e67300","#8b0707","#651067","#329262","#5574a6","#3b3eac","#b77322","#16d620","#b91383","#f4359e","#9c5935","#a9c413","#2a778d","#668d1c","#bea413","#0c5922","#743411"];
+  var h = data.getNumberOfRows() * 12;
+  var options = { 
+    title: type,
+    chartArea: {left: '20%', width: '70%', height: h },
+    width: 800,
+    height: h + 100,
+    fontSize: 10,
+    bar: {groupWidth: "80%"},
+    hAxis: { title: data.getColumnLabel(1) },
+    legend: { position: "none" },
+  };
+
+  data.addColumn({ type: "string", role: "style" });
+  data.addColumn({ type: "number", role: "annotation" });
+  for (var rowIndex = 0; rowIndex < data.getNumberOfRows(); rowIndex++) {
+    data.setValue(rowIndex, 2, colors[rowIndex]);
+    data.setValue(rowIndex, 3, data.getValue(rowIndex, 1));
+  }
+
+  if (sortOptions != null)
+    data.sort(sortOptions); // sort after assigning colors
+
+  var formatter1 = new google.visualization.NumberFormat({ fractionDigits: 0 });
+  formatter1.format(data, 3);
+
+  if (chart == null) {
+    var div = document.createElement("div");
+    div.className = "chart";
+    $(div).data("filename", type + "_" + data.getColumnLabel(1));
+    $("#main").append(div);
+    chart = new google.visualization.BarChart(div);
+  }
+
+  chart.draw(data, options);
+  return chart;
+}
+
+
+function drawPivotBarChart(type, data, title) {
+  var h = (data.getNumberOfColumns() + 1) * data.getNumberOfRows() * 5;
+  var options = { 
+    title: type,
+    chartArea: {left: '10%', width: '70%', 'height': h},
+    width: 800,
+    height: h + 100,
+    fontSize: 10,
+    hAxis: { "title": title },
+    legend: { textStyle: {fontSize: 8}},
+    bar : { groupWidth: "95%" }
+  };
+  var div = document.createElement("div");
+  div.className = "chart";
+  $(div).data("filename", type + "_" + title);
+  $("#main").append(div);
+  var chart = new google.visualization.BarChart(div);
+
+  chart.draw(data, options);
+}
+
+// http://jsfiddle.net/P6XXM/
+function sanitize(svg) {
+    svg = svg
+        .replace(/\<svg/,'<svg xmlns="http://www.w3.org/2000/svg" version="1.1"')
+        .replace(/zIndex="[^"]+"/g, '')
+        .replace(/isShadow="[^"]+"/g, '')
+        .replace(/symbolName="[^"]+"/g, '')
+        .replace(/jQuery[0-9]+="[^"]+"/g, '')
+        .replace(/isTracker="[^"]+"/g, '')
+        .replace(/url\([^#]+#/g, 'url(#')
+        .replace('<svg xmlns:xlink="http://www.w3.org/1999/xlink" ', '<svg ')
+        .replace(/ href=/g, ' xlink:href=')
+    /*.replace(/preserveAspectRatio="none">/g, 'preserveAspectRatio="none"/>')*/
+    /* This fails in IE < 8
+    .replace(/([0-9]+)\.([0-9]+)/g, function(s1, s2, s3) { // round off to save weight
+    return s2 +'.'+ s3[0];
+    })*/
+
+    // IE specific
+        .replace(/id=([^" >]+)/g, 'id="$1"')
+        .replace(/class=([^" ]+)/g, 'class="$1"')
+        .replace(/ transform /g, ' ')
+        .replace(/:(path|rect)/g, '$1')
+        .replace(/<img ([^>]*)>/gi, '<image $1 />')
+        .replace(/<\/image>/g, '') // remove closing tags for images as they'll never have any content
+        .replace(/<image ([^>]*)([^\/])>/gi, '<image $1$2 />') // closes image tags for firefox
+        .replace(/width=(\d+)/g, 'width="$1"')
+        .replace(/height=(\d+)/g, 'height="$1"')
+        .replace(/hc-svg-href="/g, 'xlink:href="')
+        .replace(/style="([^"]+)"/g, function (s) {
+            return s.toLowerCase();
+        });
+
+    // IE9 beta bugs with innerHTML. Test again with final IE9.
+    svg = svg.replace(/(url\(#highcharts-[0-9]+)&quot;/g, '$1')
+        .replace(/&quot;/g, "'");
+    if (svg.match(/ xmlns="/g).length == 2) {
+        svg = svg.replace(/xmlns="[^"]+"/, '');
+    }
+
+    return svg;
+}
+</script>
+<style type="text/css">
+@media (min-width: 800px) {
+/*  .container {
+    max-width: 800px;
+  }*/
+}
+textarea {
+  font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+}
+.tablechart {
+/*  width: 500px;
+*/  margin: auto;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+.chart {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+body { padding-top: 70px; }
+</style>
+</head>
+<body>
+<div class="container">
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="https://github.com/miloyip/nativejson-benchmark"><span class="glyphicon glyphicon-home"></span> nativejson-benchmark</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Benchmark <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu" id="benchmark">
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Section <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu" id="section">
+          </ul>
+        </li>
+      </ul>
+      <p class="navbar-text navbar-right">Developed by <a href="https://github.com/miloyip" class="navbar-link">Milo Yip</a></p>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+<div class="page-header">
+<h1 id="title">performance_Corei7-5600U@2.60GHz_linux64_gcc5.4</h1>
+</div>
+<div id="main"></div>
+<h2>Source CSV</h2>
+<textarea id="textInput" class="form-control" rows="5" readonly>
+Type,Library,Filename,Time (ms),Memory (byte),MemoryPeak (byte),AllocCount,FileSize (byte)
+1. Parse,gason (C++11),4un4.json,7.183000,12367648,12367648,2272,0
+1. Parse,gason (C++11),apache_builds.json,0.189000,209408,209408,22,0
+1. Parse,gason (C++11),canada.json,3.937000,4943328,4943328,658,0
+1. Parse,gason (C++11),citm_catalog.json,1.898000,2548048,2548048,202,0
+1. Parse,gason (C++11),twitter.json,0.998000,963992,963992,83,0
+2. Stringify,gason (C++11),4un4.json,122.784000,4322544,12711160,17,0
+2. Stringify,gason (C++11),apache_builds.json,1.123000,94736,225816,11,0
+2. Stringify,gason (C++11),canada.json,64.495000,1295056,3392216,15,0
+2. Stringify,gason (C++11),citm_catalog.json,13.975000,601104,1649688,14,0
+2. Stringify,gason (C++11),twitter.json,6.070000,481728,1006024,13,0
+3. Prettify,gason (C++11),4un4.json,155.314000,14161280,30938504,18,0
+3. Prettify,gason (C++11),apache_builds.json,1.284000,144912,407064,12,0
+3. Prettify,gason (C++11),canada.json,82.437000,7316192,15704808,17,0
+3. Prettify,gason (C++11),citm_catalog.json,17.567000,1802144,3899304,15,0
+3. Prettify,gason (C++11),twitter.json,6.899000,768768,1817352,14,0
+4. Statistics,gason (C++11),4un4.json,2.437000,0,0,0,0
+4. Statistics,gason (C++11),apache_builds.json,0.030000,0,0,0,0
+4. Statistics,gason (C++11),canada.json,0.568000,0,0,0,0
+4. Statistics,gason (C++11),citm_catalog.json,0.219000,0,0,0,0
+4. Statistics,gason (C++11),twitter.json,0.104000,0,0,0,0
+7. Code size,gason (C++11),jsonstat,0,0,0,0,18832
+1. Parse,RapidJSON_FullPrec (C++),4un4.json,13.171000,10515392,10816312,96,0
+1. Parse,RapidJSON_FullPrec (C++),apache_builds.json,0.239000,196888,214992,19,0
+1. Parse,RapidJSON_FullPrec (C++),canada.json,10.691000,2870912,3170152,61,0
+1. Parse,RapidJSON_FullPrec (C++),citm_catalog.json,2.196000,1114728,1122800,29,0
+1. Parse,RapidJSON_FullPrec (C++),twitter.json,1.427000,786928,792728,25,0
+2. Stringify,RapidJSON_FullPrec (C++),4un4.json,12.160000,3312824,3313368,26,0
+2. Stringify,RapidJSON_FullPrec (C++),apache_builds.json,0.142000,108344,108888,15,0
+2. Stringify,RapidJSON_FullPrec (C++),canada.json,7.714000,2873400,2873944,28,0
+2. Stringify,RapidJSON_FullPrec (C++),citm_catalog.json,1.067000,567656,568200,24,0
+2. Stringify,RapidJSON_FullPrec (C++),twitter.json,0.690000,687928,688472,21,0
+3. Prettify,RapidJSON_FullPrec (C++),4un4.json,14.825000,16428008,16428552,32,0
+3. Prettify,RapidJSON_FullPrec (C++),apache_builds.json,0.166000,165336,165880,16,0
+3. Prettify,RapidJSON_FullPrec (C++),canada.json,8.746000,9697512,9698056,31,0
+3. Prettify,RapidJSON_FullPrec (C++),citm_catalog.json,1.365000,1915624,1916168,27,0
+3. Prettify,RapidJSON_FullPrec (C++),twitter.json,0.818000,1090648,1091192,22,0
+4. Statistics,RapidJSON_FullPrec (C++),4un4.json,1.877000,0,0,0,0
+4. Statistics,RapidJSON_FullPrec (C++),apache_builds.json,0.017000,0,0,0,0
+4. Statistics,RapidJSON_FullPrec (C++),canada.json,0.559000,0,0,0,0
+4. Statistics,RapidJSON_FullPrec (C++),citm_catalog.json,0.184000,0,0,0,0
+4. Statistics,RapidJSON_FullPrec (C++),twitter.json,0.065000,0,0,0,0
+5. Sax Round-trip,RapidJSON_FullPrec (C++),4un4.json,21.729000,3312824,3315336,33,0
+5. Sax Round-trip,RapidJSON_FullPrec (C++),apache_builds.json,0.339000,108360,109512,19,0
+5. Sax Round-trip,RapidJSON_FullPrec (C++),canada.json,18.141000,2873416,2874248,30,0
+5. Sax Round-trip,RapidJSON_FullPrec (C++),citm_catalog.json,2.964000,567672,568504,26,0
+5. Sax Round-trip,RapidJSON_FullPrec (C++),twitter.json,1.962000,687944,689096,25,0
+6. SaxStatistics,RapidJSON_FullPrec (C++),4un4.json,11.300000,0,1968,7,0
+6. SaxStatistics,RapidJSON_FullPrec (C++),apache_builds.json,0.203000,0,608,4,0
+6. SaxStatistics,RapidJSON_FullPrec (C++),canada.json,10.721000,0,288,2,0
+6. SaxStatistics,RapidJSON_FullPrec (C++),citm_catalog.json,1.864000,0,288,2,0
+6. SaxStatistics,RapidJSON_FullPrec (C++),twitter.json,1.307000,0,608,4,0
+7. Code size,RapidJSON_FullPrec (C++),jsonstat,0,0,0,0,31128
+1. Parse,RapidJSON_Insitu (C++),4un4.json,10.372000,12583520,12882472,75,0
+1. Parse,RapidJSON_Insitu (C++),apache_builds.json,0.171000,258616,276112,15,0
+1. Parse,RapidJSON_Insitu (C++),canada.json,4.979000,5121976,5420928,60,0
+1. Parse,RapidJSON_Insitu (C++),citm_catalog.json,1.882000,2776376,2784160,27,0
+1. Parse,RapidJSON_Insitu (C++),twitter.json,1.084000,1090656,1095848,17,0
+2. Stringify,RapidJSON_Insitu (C++),4un4.json,12.333000,3312824,3313384,26,0
+2. Stringify,RapidJSON_Insitu (C++),apache_builds.json,0.165000,108344,108904,15,0
+2. Stringify,RapidJSON_Insitu (C++),canada.json,7.702000,2873400,2873960,28,0
+2. Stringify,RapidJSON_Insitu (C++),citm_catalog.json,1.115000,567656,568216,24,0
+2. Stringify,RapidJSON_Insitu (C++),twitter.json,0.840000,687928,688488,21,0
+3. Prettify,RapidJSON_Insitu (C++),4un4.json,15.012000,16428008,16428568,32,0
+3. Prettify,RapidJSON_Insitu (C++),apache_builds.json,0.188000,165336,165896,16,0
+3. Prettify,RapidJSON_Insitu (C++),canada.json,8.758000,9697512,9698072,31,0
+3. Prettify,RapidJSON_Insitu (C++),citm_catalog.json,1.414000,1915624,1916184,27,0
+3. Prettify,RapidJSON_Insitu (C++),twitter.json,0.966000,1090648,1091208,22,0
+4. Statistics,RapidJSON_Insitu (C++),4un4.json,1.988000,0,0,0,0
+4. Statistics,RapidJSON_Insitu (C++),apache_builds.json,0.014000,0,0,0,0
+4. Statistics,RapidJSON_Insitu (C++),canada.json,0.556000,0,0,0,0
+4. Statistics,RapidJSON_Insitu (C++),citm_catalog.json,0.174000,0,0,0,0
+4. Statistics,RapidJSON_Insitu (C++),twitter.json,0.067000,0,0,0,0
+5. Sax Round-trip,RapidJSON_Insitu (C++),4un4.json,18.080000,3312824,6364952,28,0
+5. Sax Round-trip,RapidJSON_Insitu (C++),apache_builds.json,0.284000,108344,236216,17,0
+5. Sax Round-trip,RapidJSON_Insitu (C++),canada.json,11.583000,2873400,5125048,30,0
+5. Sax Round-trip,RapidJSON_Insitu (C++),citm_catalog.json,2.549000,567656,2295448,26,0
+5. Sax Round-trip,RapidJSON_Insitu (C++),twitter.json,1.775000,687928,1320040,23,0
+6. SaxStatistics,RapidJSON_Insitu (C++),4un4.json,7.319000,0,3051568,2,0
+6. SaxStatistics,RapidJSON_Insitu (C++),apache_builds.json,0.146000,0,127328,2,0
+6. SaxStatistics,RapidJSON_Insitu (C++),canada.json,3.981000,0,2251104,2,0
+6. SaxStatistics,RapidJSON_Insitu (C++),citm_catalog.json,1.550000,0,1727248,2,0
+6. SaxStatistics,RapidJSON_Insitu (C++),twitter.json,1.011000,0,631568,2,0
+7. Code size,RapidJSON_Insitu (C++),jsonstat,0,0,0,0,31128
+1. Parse,RapidJSON (C++),4un4.json,10.544000,10515392,10816312,96,0
+1. Parse,RapidJSON (C++),apache_builds.json,0.244000,196888,214992,19,0
+1. Parse,RapidJSON (C++),canada.json,4.559000,2870912,3170152,61,0
+1. Parse,RapidJSON (C++),citm_catalog.json,2.054000,1114728,1122800,29,0
+1. Parse,RapidJSON (C++),twitter.json,1.402000,786928,792728,25,0
+2. Stringify,RapidJSON (C++),4un4.json,12.160000,3312824,3313368,26,0
+2. Stringify,RapidJSON (C++),apache_builds.json,0.142000,108344,108888,15,0
+2. Stringify,RapidJSON (C++),canada.json,7.728000,2873400,2873944,28,0
+2. Stringify,RapidJSON (C++),citm_catalog.json,1.096000,567656,568200,24,0
+2. Stringify,RapidJSON (C++),twitter.json,0.693000,687928,688472,21,0
+3. Prettify,RapidJSON (C++),4un4.json,14.847000,16428008,16428552,32,0
+3. Prettify,RapidJSON (C++),apache_builds.json,0.166000,165336,165880,16,0
+3. Prettify,RapidJSON (C++),canada.json,8.781000,9697512,9698056,31,0
+3. Prettify,RapidJSON (C++),citm_catalog.json,1.361000,1915624,1916168,27,0
+3. Prettify,RapidJSON (C++),twitter.json,0.822000,1090648,1091192,22,0
+4. Statistics,RapidJSON (C++),4un4.json,1.880000,0,0,0,0
+4. Statistics,RapidJSON (C++),apache_builds.json,0.018000,0,0,0,0
+4. Statistics,RapidJSON (C++),canada.json,0.559000,0,0,0,0
+4. Statistics,RapidJSON (C++),citm_catalog.json,0.185000,0,0,0,0
+4. Statistics,RapidJSON (C++),twitter.json,0.065000,0,0,0,0
+5. Sax Round-trip,RapidJSON (C++),4un4.json,18.903000,3312824,3315336,33,0
+5. Sax Round-trip,RapidJSON (C++),apache_builds.json,0.356000,108360,109512,19,0
+5. Sax Round-trip,RapidJSON (C++),canada.json,11.351000,2873416,2874248,30,0
+5. Sax Round-trip,RapidJSON (C++),citm_catalog.json,2.742000,567672,568504,26,0
+5. Sax Round-trip,RapidJSON (C++),twitter.json,1.973000,687944,689096,25,0
+6. SaxStatistics,RapidJSON (C++),4un4.json,8.240000,0,1968,7,0
+6. SaxStatistics,RapidJSON (C++),apache_builds.json,0.213000,0,608,4,0
+6. SaxStatistics,RapidJSON (C++),canada.json,3.793000,0,288,2,0
+6. SaxStatistics,RapidJSON (C++),citm_catalog.json,1.661000,0,288,2,0
+6. SaxStatistics,RapidJSON (C++),twitter.json,1.294000,0,608,4,0
+7. Code size,RapidJSON (C++),jsonstat,0,0,0,0,31128
+1. Parse,sajson (C++),4un4.json,12.392000,19829008,28348472,22,0
+1. Parse,sajson (C++),apache_builds.json,0.167000,258624,332136,11,0
+1. Parse,sajson (C++),canada.json,5.467000,6445632,8673640,20,0
+1. Parse,sajson (C++),citm_catalog.json,2.229000,2776048,3308312,14,0
+1. Parse,sajson (C++),twitter.json,0.929000,1156080,1422104,12,0
+4. Statistics,sajson (C++),4un4.json,2.857000,0,0,0,0
+4. Statistics,sajson (C++),apache_builds.json,0.018000,0,0,0,0
+4. Statistics,sajson (C++),canada.json,0.850000,0,0,0,0
+4. Statistics,sajson (C++),citm_catalog.json,0.197000,0,0,0,0
+4. Statistics,sajson (C++),twitter.json,0.054000,0,0,0,0
+7. Code size,sajson (C++),jsonstat,0,0,0,0,39400
+1. Parse,taocpp/json (C++11),4un4.json,36.250000,39751552,39752480,5425,0
+1. Parse,taocpp/json (C++11),apache_builds.json,0.834000,451912,452216,4126,0
+1. Parse,taocpp/json (C++11),canada.json,21.811000,11300328,11388408,114209,0
+1. Parse,taocpp/json (C++11),citm_catalog.json,12.843000,4059344,4059936,33888,0
+1. Parse,taocpp/json (C++11),twitter.json,4.633000,2043576,2044744,20817,0
+2. Stringify,taocpp/json (C++11),4un4.json,35.615000,3017440,7211752,16,0
+2. Stringify,taocpp/json (C++11),apache_builds.json,0.359000,94704,225784,11,0
+2. Stringify,taocpp/json (C++11),canada.json,19.559000,2090288,4187448,15,0
+2. Stringify,taocpp/json (C++11),citm_catalog.json,3.216000,500352,1024648,13,0
+2. Stringify,taocpp/json (C++11),twitter.json,1.947000,466960,991256,13,0
+3. Prettify,taocpp/json (C++11),4un4.json,52.403000,12857072,29634296,19,0
+3. Prettify,taocpp/json (C++11),apache_builds.json,0.474000,147520,409672,12,0
+3. Prettify,taocpp/json (C++11),canada.json,25.389000,8111424,16500040,18,0
+3. Prettify,taocpp/json (C++11),citm_catalog.json,4.864000,1727248,3824408,17,0
+3. Prettify,taocpp/json (C++11),twitter.json,2.641000,767344,1815928,16,0
+4. Statistics,taocpp/json (C++11),4un4.json,2.574000,0,0,0,0
+4. Statistics,taocpp/json (C++11),apache_builds.json,0.023000,0,0,0,0
+4. Statistics,taocpp/json (C++11),canada.json,0.864000,0,0,0,0
+4. Statistics,taocpp/json (C++11),citm_catalog.json,0.443000,0,0,0,0
+4. Statistics,taocpp/json (C++11),twitter.json,0.255000,0,0,0,0
+5. Sax Round-trip,taocpp/json (C++11),4un4.json,60.332000,3017440,7211752,595,0
+5. Sax Round-trip,taocpp/json (C++11),apache_builds.json,0.930000,94704,225784,1466,0
+5. Sax Round-trip,taocpp/json (C++11),canada.json,31.931000,2090288,4187448,16,0
+5. Sax Round-trip,taocpp/json (C++11),citm_catalog.json,12.139000,500352,1024648,1374,0
+5. Sax Round-trip,taocpp/json (C++11),twitter.json,4.626000,466960,991256,6999,0
+6. SaxStatistics,taocpp/json (C++11),4un4.json,23.197000,0,3856,579,0
+6. SaxStatistics,taocpp/json (C++11),apache_builds.json,0.580000,0,768,1455,0
+6. SaxStatistics,taocpp/json (C++11),canada.json,12.311000,0,40,1,0
+6. SaxStatistics,taocpp/json (C++11),citm_catalog.json,8.627000,0,112,1361,0
+6. SaxStatistics,taocpp/json (C++11),twitter.json,2.944000,0,1056,6986,0
+7. Code size,taocpp/json (C++11),jsonstat,0,0,0,0,76488
+</textarea>
+</div>
+<div class="row" id="downloadDD" style="display: none">
+<div class="btn-group pull-right" >
+    <button class="btn dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-picture"></span></button>
+    <ul class="dropdown-menu">
+        <li><a tabindex="-1" href="#" dltype="image/jpeg">JPEG</a></li>
+        <li><a tabindex="-1" href="#" dltype="image/png">PNG</a></li>
+        <li><a tabindex="-1" href="#" dltype="application/pdf">PDF</a></li>
+        <li><a tabindex="-1" href="#" dltype="image/svg+xml">SVG</a></li>
+    </ul>
+</div>
+</div>
+<form method="post" action="http://export.highcharts.com/" id="imageGetForm">
+    <input type="hidden" name="filename" id="imageFilename" value="" />
+    <input type="hidden" name="type" id="imageGetFormTYPE" value="" />
+    <input type="hidden" name="width" value="1600" />
+    <input type="hidden" name="svg" value="" id="imageGetFormSVG" />
+</form>
+</div>
+</body>
+</html>

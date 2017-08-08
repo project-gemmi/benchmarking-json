@@ -1,0 +1,157 @@
+Type,Library,Filename,Time (ms),FileSize (byte)
+1. Parse,gason (C++11),4un4.json,7.409000,0
+1. Parse,gason (C++11),apache_builds.json,0.185000,0
+1. Parse,gason (C++11),canada.json,3.635000,0
+1. Parse,gason (C++11),citm_catalog.json,2.151000,0
+1. Parse,gason (C++11),twitter.json,0.999000,0
+2. Stringify,gason (C++11),4un4.json,124.873000,0
+2. Stringify,gason (C++11),apache_builds.json,1.108000,0
+2. Stringify,gason (C++11),canada.json,65.798000,0
+2. Stringify,gason (C++11),citm_catalog.json,14.164000,0
+2. Stringify,gason (C++11),twitter.json,6.049000,0
+3. Prettify,gason (C++11),4un4.json,159.680000,0
+3. Prettify,gason (C++11),apache_builds.json,1.275000,0
+3. Prettify,gason (C++11),canada.json,82.195000,0
+3. Prettify,gason (C++11),citm_catalog.json,17.586000,0
+3. Prettify,gason (C++11),twitter.json,6.872000,0
+4. Statistics,gason (C++11),4un4.json,2.616000,0
+4. Statistics,gason (C++11),apache_builds.json,0.033000,0
+4. Statistics,gason (C++11),canada.json,0.601000,0
+4. Statistics,gason (C++11),citm_catalog.json,0.234000,0
+4. Statistics,gason (C++11),twitter.json,0.131000,0
+7. Code size,gason (C++11),jsonstat,0,18720
+1. Parse,RapidJSON_FullPrec (C++),4un4.json,16.702000,0
+1. Parse,RapidJSON_FullPrec (C++),apache_builds.json,0.265000,0
+1. Parse,RapidJSON_FullPrec (C++),canada.json,14.152000,0
+1. Parse,RapidJSON_FullPrec (C++),citm_catalog.json,2.595000,0
+1. Parse,RapidJSON_FullPrec (C++),twitter.json,1.505000,0
+2. Stringify,RapidJSON_FullPrec (C++),4un4.json,14.837000,0
+2. Stringify,RapidJSON_FullPrec (C++),apache_builds.json,0.143000,0
+2. Stringify,RapidJSON_FullPrec (C++),canada.json,10.186000,0
+2. Stringify,RapidJSON_FullPrec (C++),citm_catalog.json,1.187000,0
+2. Stringify,RapidJSON_FullPrec (C++),twitter.json,0.698000,0
+3. Prettify,RapidJSON_FullPrec (C++),4un4.json,18.679000,0
+3. Prettify,RapidJSON_FullPrec (C++),apache_builds.json,0.174000,0
+3. Prettify,RapidJSON_FullPrec (C++),canada.json,11.646000,0
+3. Prettify,RapidJSON_FullPrec (C++),citm_catalog.json,1.511000,0
+3. Prettify,RapidJSON_FullPrec (C++),twitter.json,0.831000,0
+4. Statistics,RapidJSON_FullPrec (C++),4un4.json,2.435000,0
+4. Statistics,RapidJSON_FullPrec (C++),apache_builds.json,0.019000,0
+4. Statistics,RapidJSON_FullPrec (C++),canada.json,0.682000,0
+4. Statistics,RapidJSON_FullPrec (C++),citm_catalog.json,0.198000,0
+4. Statistics,RapidJSON_FullPrec (C++),twitter.json,0.077000,0
+5. Sax Round-trip,RapidJSON_FullPrec (C++),4un4.json,26.097000,0
+5. Sax Round-trip,RapidJSON_FullPrec (C++),apache_builds.json,0.552000,0
+5. Sax Round-trip,RapidJSON_FullPrec (C++),canada.json,23.327000,0
+5. Sax Round-trip,RapidJSON_FullPrec (C++),citm_catalog.json,3.048000,0
+5. Sax Round-trip,RapidJSON_FullPrec (C++),twitter.json,1.913000,0
+6. SaxStatistics,RapidJSON_FullPrec (C++),4un4.json,12.756000,0
+6. SaxStatistics,RapidJSON_FullPrec (C++),apache_builds.json,0.179000,0
+6. SaxStatistics,RapidJSON_FullPrec (C++),canada.json,13.504000,0
+6. SaxStatistics,RapidJSON_FullPrec (C++),citm_catalog.json,1.997000,0
+6. SaxStatistics,RapidJSON_FullPrec (C++),twitter.json,1.184000,0
+7. Code size,RapidJSON_FullPrec (C++),jsonstat,0,26920
+1. Parse,RapidJSON_Insitu (C++),4un4.json,10.117000,0
+1. Parse,RapidJSON_Insitu (C++),apache_builds.json,0.165000,0
+1. Parse,RapidJSON_Insitu (C++),canada.json,5.258000,0
+1. Parse,RapidJSON_Insitu (C++),citm_catalog.json,1.918000,0
+1. Parse,RapidJSON_Insitu (C++),twitter.json,1.054000,0
+2. Stringify,RapidJSON_Insitu (C++),4un4.json,14.834000,0
+2. Stringify,RapidJSON_Insitu (C++),apache_builds.json,0.159000,0
+2. Stringify,RapidJSON_Insitu (C++),canada.json,10.103000,0
+2. Stringify,RapidJSON_Insitu (C++),citm_catalog.json,1.200000,0
+2. Stringify,RapidJSON_Insitu (C++),twitter.json,0.814000,0
+3. Prettify,RapidJSON_Insitu (C++),4un4.json,18.662000,0
+3. Prettify,RapidJSON_Insitu (C++),apache_builds.json,0.188000,0
+3. Prettify,RapidJSON_Insitu (C++),canada.json,11.565000,0
+3. Prettify,RapidJSON_Insitu (C++),citm_catalog.json,1.569000,0
+3. Prettify,RapidJSON_Insitu (C++),twitter.json,0.955000,0
+4. Statistics,RapidJSON_Insitu (C++),4un4.json,2.432000,0
+4. Statistics,RapidJSON_Insitu (C++),apache_builds.json,0.017000,0
+4. Statistics,RapidJSON_Insitu (C++),canada.json,0.673000,0
+4. Statistics,RapidJSON_Insitu (C++),citm_catalog.json,0.198000,0
+4. Statistics,RapidJSON_Insitu (C++),twitter.json,0.088000,0
+5. Sax Round-trip,RapidJSON_Insitu (C++),4un4.json,20.774000,0
+5. Sax Round-trip,RapidJSON_Insitu (C++),apache_builds.json,0.279000,0
+5. Sax Round-trip,RapidJSON_Insitu (C++),canada.json,14.587000,0
+5. Sax Round-trip,RapidJSON_Insitu (C++),citm_catalog.json,2.574000,0
+5. Sax Round-trip,RapidJSON_Insitu (C++),twitter.json,1.759000,0
+6. SaxStatistics,RapidJSON_Insitu (C++),4un4.json,6.702000,0
+6. SaxStatistics,RapidJSON_Insitu (C++),apache_builds.json,0.127000,0
+6. SaxStatistics,RapidJSON_Insitu (C++),canada.json,4.138000,0
+6. SaxStatistics,RapidJSON_Insitu (C++),citm_catalog.json,1.411000,0
+6. SaxStatistics,RapidJSON_Insitu (C++),twitter.json,0.946000,0
+7. Code size,RapidJSON_Insitu (C++),jsonstat,0,26920
+1. Parse,RapidJSON (C++),4un4.json,11.801000,0
+1. Parse,RapidJSON (C++),apache_builds.json,0.263000,0
+1. Parse,RapidJSON (C++),canada.json,4.956000,0
+1. Parse,RapidJSON (C++),citm_catalog.json,2.225000,0
+1. Parse,RapidJSON (C++),twitter.json,1.487000,0
+2. Stringify,RapidJSON (C++),4un4.json,14.826000,0
+2. Stringify,RapidJSON (C++),apache_builds.json,0.143000,0
+2. Stringify,RapidJSON (C++),canada.json,10.157000,0
+2. Stringify,RapidJSON (C++),citm_catalog.json,1.175000,0
+2. Stringify,RapidJSON (C++),twitter.json,0.695000,0
+3. Prettify,RapidJSON (C++),4un4.json,18.704000,0
+3. Prettify,RapidJSON (C++),apache_builds.json,0.174000,0
+3. Prettify,RapidJSON (C++),canada.json,11.540000,0
+3. Prettify,RapidJSON (C++),citm_catalog.json,1.511000,0
+3. Prettify,RapidJSON (C++),twitter.json,0.831000,0
+4. Statistics,RapidJSON (C++),4un4.json,2.155000,0
+4. Statistics,RapidJSON (C++),apache_builds.json,0.019000,0
+4. Statistics,RapidJSON (C++),canada.json,0.617000,0
+4. Statistics,RapidJSON (C++),citm_catalog.json,0.187000,0
+4. Statistics,RapidJSON (C++),twitter.json,0.071000,0
+5. Sax Round-trip,RapidJSON (C++),4un4.json,21.855000,0
+5. Sax Round-trip,RapidJSON (C++),apache_builds.json,0.331000,0
+5. Sax Round-trip,RapidJSON (C++),canada.json,14.432000,0
+5. Sax Round-trip,RapidJSON (C++),citm_catalog.json,2.697000,0
+5. Sax Round-trip,RapidJSON (C++),twitter.json,1.889000,0
+6. SaxStatistics,RapidJSON (C++),4un4.json,7.600000,0
+6. SaxStatistics,RapidJSON (C++),apache_builds.json,0.178000,0
+6. SaxStatistics,RapidJSON (C++),canada.json,4.172000,0
+6. SaxStatistics,RapidJSON (C++),citm_catalog.json,1.590000,0
+6. SaxStatistics,RapidJSON (C++),twitter.json,1.156000,0
+7. Code size,RapidJSON (C++),jsonstat,0,26920
+1. Parse,sajson (C++),4un4.json,12.893000,0
+1. Parse,sajson (C++),apache_builds.json,0.166000,0
+1. Parse,sajson (C++),canada.json,5.722000,0
+1. Parse,sajson (C++),citm_catalog.json,2.332000,0
+1. Parse,sajson (C++),twitter.json,0.927000,0
+4. Statistics,sajson (C++),4un4.json,2.559000,0
+4. Statistics,sajson (C++),apache_builds.json,0.021000,0
+4. Statistics,sajson (C++),canada.json,0.731000,0
+4. Statistics,sajson (C++),citm_catalog.json,0.229000,0
+4. Statistics,sajson (C++),twitter.json,0.084000,0
+7. Code size,sajson (C++),jsonstat,0,39272
+1. Parse,taocpp/json (C++11),4un4.json,33.850000,0
+1. Parse,taocpp/json (C++11),apache_builds.json,0.816000,0
+1. Parse,taocpp/json (C++11),canada.json,18.234000,0
+1. Parse,taocpp/json (C++11),citm_catalog.json,7.322000,0
+1. Parse,taocpp/json (C++11),twitter.json,4.539000,0
+2. Stringify,taocpp/json (C++11),4un4.json,37.910000,0
+2. Stringify,taocpp/json (C++11),apache_builds.json,0.394000,0
+2. Stringify,taocpp/json (C++11),canada.json,21.620000,0
+2. Stringify,taocpp/json (C++11),citm_catalog.json,3.363000,0
+2. Stringify,taocpp/json (C++11),twitter.json,2.290000,0
+3. Prettify,taocpp/json (C++11),4un4.json,53.789000,0
+3. Prettify,taocpp/json (C++11),apache_builds.json,0.510000,0
+3. Prettify,taocpp/json (C++11),canada.json,27.029000,0
+3. Prettify,taocpp/json (C++11),citm_catalog.json,4.981000,0
+3. Prettify,taocpp/json (C++11),twitter.json,2.799000,0
+4. Statistics,taocpp/json (C++11),4un4.json,2.422000,0
+4. Statistics,taocpp/json (C++11),apache_builds.json,0.023000,0
+4. Statistics,taocpp/json (C++11),canada.json,0.833000,0
+4. Statistics,taocpp/json (C++11),citm_catalog.json,0.453000,0
+4. Statistics,taocpp/json (C++11),twitter.json,0.171000,0
+5. Sax Round-trip,taocpp/json (C++11),4un4.json,58.157000,0
+5. Sax Round-trip,taocpp/json (C++11),apache_builds.json,0.957000,0
+5. Sax Round-trip,taocpp/json (C++11),canada.json,31.230000,0
+5. Sax Round-trip,taocpp/json (C++11),citm_catalog.json,6.905000,0
+5. Sax Round-trip,taocpp/json (C++11),twitter.json,4.725000,0
+6. SaxStatistics,taocpp/json (C++11),4un4.json,18.739000,0
+6. SaxStatistics,taocpp/json (C++11),apache_builds.json,0.585000,0
+6. SaxStatistics,taocpp/json (C++11),canada.json,9.632000,0
+6. SaxStatistics,taocpp/json (C++11),citm_catalog.json,4.114000,0
+6. SaxStatistics,taocpp/json (C++11),twitter.json,2.870000,0
+7. Code size,taocpp/json (C++11),jsonstat,0,72248
