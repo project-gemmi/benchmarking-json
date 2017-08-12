@@ -32,10 +32,9 @@ So, which of the DOM-building parsers can be the fastest one as of August 2017?
   and more accurate in number parsing.
   But it is not clear to me what is the current status of gason2.
 
-I'll skip [Jsmn](https://github.com/zserge/jsmn) by Serge Zaitsev,
-"world fastest JSON parser/tokenizer" which indeed wins in one of
-the RapidJSON's benchmarks ([Statistics][2]),
-because it doesn't create a DOM-like structure.
+I'll skip [Jsmn](https://github.com/zserge/jsmn), a parser/tokenizer
+by Serge Zaitsev, because it doesn't create a DOM-like structure.
+Jsmn wins in one of the RapidJSON's benchmarks ([Statistics][2]).
 
 On the other hand I'll include
 [**taocpp/json**](https://github.com/taocpp/json) (by Daniel Frey and
