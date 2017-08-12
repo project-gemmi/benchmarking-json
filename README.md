@@ -156,9 +156,9 @@ The results are consistent with both gason and sajson benchmarks.
 Each of RapidJSON, sajson and gason wins at least one test and can be
 rightfully called the fastest parser.
 
-As Chad noted in #1, sajson in the dynamic allocation mode
-(that was used here) trades a bit of CPU performance for much lower
-peak memory usage when parsing.
+As Chad [noted in #1](https://github.com/project-gemmi/benchmarking-json/issues/1),
+sajson in the dynamic allocation mode (that was used here) trades
+a bit of CPU performance for much lower peak memory usage when parsing.
 
 Here are results I got with Clang 4:
 
