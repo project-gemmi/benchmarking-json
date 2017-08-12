@@ -148,13 +148,17 @@ Here is what I got with GCC 7:
 
 (Yes, it'd be better to show MB/s).
 
-Three of the benchmarks are in-situ: RapidJSON_InSitu, sajson, gason.
+Three of the benchmarks are in-situ: RapidJSON_Insitu, sajson, gason.
 Two are not in-situ and with full numeric precision:
 taocpp and RapidJSON_FullPrec.
 
 The results are consistent with both gason and sajson benchmarks.
 Each of RapidJSON, sajson and gason wins at least one test and can be
 rightfully called the fastest parser.
+
+As Chad noted in #1, sajson in the dynamic allocation mode
+(that was used here) trades a bit of CPU performance for much lower
+peak memory usage when parsing.
 
 Here are results I got with Clang 4:
 
