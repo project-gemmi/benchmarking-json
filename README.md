@@ -4,6 +4,8 @@
 I got curious because different benchmarks show different results.
 So, which of the DOM-building parsers can be the fastest one as of August 2017?
 
+Note: this was written before [simdjson](https://github.com/lemire/simdjson).
+
 * [**RapidJSON**](http://rapidjson.org/) by Milo Yip.
   It is a well-known fastest C++ parser.
   When there is a news on r/rust that a [library in Rust is faster][3]
